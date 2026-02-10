@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes Mine • Neural Network</title>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00d9ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Notes Mine">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  
+  <style>
+    /*
+    ═══════════════════════════════════════════════════════════════
+    NOTES MINE - NEURAL NETWORK APPLICATION
+    ═══════════════════════════════════════════════════════════════
+    
+    APP NAME: Notes Mine
+    STATS: "Notes"
+    VIEW ALL: "View Notes"
+    
+    ═══════════════════════════════════════════════════════════════
+    */
+    
+    /* ═══════════════════════════════════════════════════════════
+       BASE RESET & LAYOUT
+       ═══════════════════════════════════════════════════════════ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+    }
+
+    body {
+      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      transition: background 0.5s ease;
+      scroll-behavior: smooth;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       THEME SYSTEM - CSS VARIABLES
+       ═══════════════════════════════════════════════════════════ */
+    
+    /* Dark Mode */
+    body.dark-mode {
+      --bg-primary: #000000;
+      --bg-secondary: rgba(10, 10, 20, 0.9);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.8);
+      --accent-color: #00d9ff;
+      --accent-glow: rgba(0, 217, 255, 0.8);
+      --border-color: #00d9ff;
+      --node-bg: rgba(5, 5, 15, 0.95);
+      --ring-color-1: rgba(0, 217, 255, 0.8);
+      --ring-color-2: rgba(138, 43, 226, 0.6);
+      --ring-color-3: rgba(100, 150, 255, 0.5);
+      --line-color: rgba(0, 217, 255, 0.3);
+      --pulse-color: rgba(0, 0, 0, 0.95);
+      --star-opacity: 0.6;
+      --logo-glow: rgba(0, 217, 255, 0.6);
+      --scrollbar-track: rgba(0, 217, 255, 0.1);
+      --scrollbar-thumb: rgba(0, 217, 255, 0.5);
+      --scrollbar-thumb-hover: rgba(0, 217, 255, 0.8);
+    }
+
+    /* Light Mode */
+    body.light-mode {
+      --bg-primary: #ffffff;
+      --bg-secondary: rgba(250, 250, 255, 0.9);
+      --text-primary: #1a1a2e;
+      --text-secondary: rgba(26, 26, 46, 0.8);
+      --accent-color: #0077ff;
+      --accent-glow: rgba(0, 119, 255, 0.6);
+      --border-color: #0077ff;
+      --node-bg: rgba(255, 255, 255, 0.95);
+      --ring-color-1: rgba(0, 119, 255, 0.8);
+      --ring-color-2: rgba(100, 180, 255, 0.6);
+      --ring-color-3: rgba(150, 200, 255, 0.5);
+      --line-color: rgba(0, 119, 255, 0.2);
+      --pulse-color: rgba(255, 255, 255, 0.95);
+      --star-opacity: 0.15;
+      --logo-glow: rgba(0, 119, 255, 0.4);
+      --scrollbar-track: rgba(0, 119, 255, 0.1);
+      --scrollbar-thumb: rgba(0, 119, 255, 0.5);
+      --scrollbar-thumb-hover: rgba(0, 119, 255, 0.8);
+    }
+
+    body {
+      background: var(--bg-primary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STARFIELD BACKGROUND
+       ═══════════════════════════════════════════════════════════ */
+    .starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background: radial-gradient(2px 2px at 20% 30%, white, transparent),
+                  radial-gradient(2px 2px at 60% 70%, white, transparent),
+                  radial-gradient(1px 1px at 50% 50%, white, transparent),
+                  radial-gradient(1px 1px at 80% 10%, white, transparent),
+                  radial-gradient(2px 2px at 90% 60%, white, transparent),
+                  radial-gradient(1px 1px at 33% 80%, white, transparent);
+      background-size: 200% 200%;
+      opacity: var(--star-opacity);
+      animation: starMove 60s linear infinite;
+      transition: opacity 0.5s ease;
+    }
+
+    @keyframes starMove {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       LOGO - TOP CENTER
+       ═══════════════════════════════════════════════════════════ */
+    .app-logo {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-secondary);
+      backdrop-filter: blur(20px);
+      padding: 12px 24px;
+      border-radius: 50px;
+      border: 2px solid var(--border-color);
+      box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.2),
+        0 0 30px var(--logo-glow);
+      transition: all 0.5s ease;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      filter: drop-shadow(0 0 10px var(--accent-glow));
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-4px) rotate(5deg); }
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-color), var(--ring-color-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .logo-divider {
+      width: 2px;
+      height: 24px;
+      background: linear-gradient(180deg, 
+        transparent,
+        var(--accent-color),
+        transparent);
+    }
+
+    .logo-tagline {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       MAIN CONTAINER
+       ═══════════════════════════════════════════════════════════ */
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       SOLAR RING SYSTEM
+       ═══════════════════════════════════════════════════════════ */
+    .solar-rings {
+      position: relative;
+      width: min(400px, 50vw);
+      height: min(400px, 50vw);
+      z-index: 10;
+    }
+
+    .solar-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border-radius: 50%;
+      border: 2px solid;
+      transform-origin: center;
+    }
+
+    .solar-ring-1 {
+      width: 100%;
+      height: 35%;
+      margin-left: -50%;
+      margin-top: -17.5%;
+      border-color: var(--ring-color-1);
+      box-shadow: 
+        0 0 30px var(--ring-color-1),
+        inset 0 0 20px var(--ring-color-1);
+      animation: orbitRotate1 25s linear infinite;
+      transform: rotateX(75deg);
+    }
+
+    .solar-ring-2 {
+      width: 170%;
+      height: 55%;
+      margin-left: -85%;
+      margin-top: -27.5%;
+      border-color: var(--ring-color-2);
+      box-shadow: 
+        0 0 40px var(--ring-color-2),
+        inset 0 0 30px var(--ring-color-2);
+      animation: orbitRotate2 35s linear infinite;
+      transform: rotateX(75deg);
+    }
+
+    .solar-ring-3 {
+      width: 240%;
+      height: 75%;
+      margin-left: -120%;
+      margin-top: -37.5%;
+      border-color: var(--ring-color-3);
+      box-shadow: 
+        0 0 50px var(--ring-color-3),
+        inset 0 0 40px var(--ring-color-3);
+      animation: orbitRotate3 45s linear infinite;
+      transform: rotateX(75deg);
+    }
+
+    @keyframes orbitRotate1 {
+      0% { transform: rotateX(75deg) rotateZ(0deg); }
+      100% { transform: rotateX(75deg) rotateZ(360deg); }
+    }
+
+    @keyframes orbitRotate2 {
+      0% { transform: rotateX(75deg) rotateZ(0deg); }
+      100% { transform: rotateX(75deg) rotateZ(-360deg); }
+    }
+
+    @keyframes orbitRotate3 {
+      0% { transform: rotateX(75deg) rotateZ(0deg); }
+      100% { transform: rotateX(75deg) rotateZ(360deg); }
+    }
+
+    .solar-core {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 18%;
+      height: 18%;
+      margin-left: -9%;
+      margin-top: -9%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, 
+        var(--accent-color),
+        var(--ring-color-2));
+      box-shadow: 0 0 60px var(--accent-glow);
+      animation: coreGlow 3s ease-in-out infinite;
+      z-index: 5;
+    }
+
+    @keyframes coreGlow {
+      0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 60px var(--accent-glow);
+      }
+      50% { 
+        transform: scale(1.1);
+        box-shadow: 0 0 80px var(--accent-glow);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       PULSE WAVE EFFECT
+       ═══════════════════════════════════════════════════════════ */
+    .pulse-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      margin-left: 0;
+      margin-top: 0;
+      border-radius: 50%;
+      background: var(--pulse-color);
+      pointer-events: none;
+      z-index: 8;
+      animation: pulseExpand 6s ease-in-out infinite;
+    }
+
+    @keyframes pulseExpand {
+      0% { 
+        width: 0;
+        height: 0;
+        margin-left: 0;
+        margin-top: 0;
+        opacity: 0;
+      }
+      40% { 
+        width: min(850px, 95vmin);
+        height: min(850px, 95vmin);
+        margin-left: min(-425px, -47.5vmin);
+        margin-top: min(-425px, -47.5vmin);
+        opacity: 0.9;
+      }
+      60% { 
+        width: min(850px, 95vmin);
+        height: min(850px, 95vmin);
+        margin-left: min(-425px, -47.5vmin);
+        margin-top: min(-425px, -47.5vmin);
+        opacity: 0.9;
+      }
+      100% { 
+        width: 0;
+        height: 0;
+        margin-left: 0;
+        margin-top: 0;
+        opacity: 0;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       CONNECTION LINES - SVG
+       ═══════════════════════════════════════════════════════════ */
+    #connectionSvg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #connectionSvg line {
+      stroke: var(--line-color);
+      stroke-width: 2;
+      transition: stroke 0.5s ease;
+      animation: lineGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes lineGlow {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 0.8; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       ORBITAL NODES
+       ═══════════════════════════════════════════════════════════ */
+    .note-node {
+      position: absolute;
+      width: 120px;
+      cursor: pointer;
+      z-index: 15;
+      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .note-node:hover {
+      transform: scale(1.15) translateY(-8px);
+      z-index: 20;
+    }
+
+    .node-container {
+      background: var(--node-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.4),
+        0 0 0 2px var(--border-color);
+      transition: all 0.3s ease;
+      animation: nodeFloat 5s ease-in-out infinite;
+    }
+
+    @keyframes nodeFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-8px) rotate(1deg); }
+      75% { transform: translateY(-5px) rotate(-1deg); }
+    }
+
+    .note-node:hover .node-container {
+      box-shadow: 
+        0 15px 60px rgba(0, 0, 0, 0.5),
+        0 0 0 3px var(--accent-color),
+        0 0 40px var(--accent-glow);
+    }
+
+    .node-icon {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 10px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, 
+        rgba(0, 217, 255, 0.1),
+        rgba(138, 43, 226, 0.1));
+      border: 2px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .node-icon::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, 
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent);
+      animation: iconShine 3s linear infinite;
+    }
+
+    @keyframes iconShine {
+      0% { transform: translateX(-100%) translateY(-100%); }
+      100% { transform: translateX(100%) translateY(100%); }
+    }
+
+    .node-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      line-height: 1.3;
+      transition: color 0.5s ease;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       CATEGORY COLORS
+       ═══════════════════════════════════════════════════════════ */
+    .node-category-1 .node-icon {
+      border-color: #ff4d9f;
+      background: linear-gradient(135deg, 
+        rgba(255, 77, 159, 0.2),
+        rgba(255, 77, 159, 0.05));
+      box-shadow: 0 0 20px rgba(255, 77, 159, 0.3);
+    }
+
+    .node-category-2 .node-icon {
+      border-color: #9f4dff;
+      background: linear-gradient(135deg, 
+        rgba(159, 77, 255, 0.2),
+        rgba(159, 77, 255, 0.05));
+      box-shadow: 0 0 20px rgba(159, 77, 255, 0.3);
+    }
+
+    .node-category-3 .node-icon {
+      border-color: #4d9fff;
+      background: linear-gradient(135deg, 
+        rgba(77, 159, 255, 0.2),
+        rgba(77, 159, 255, 0.05));
+      box-shadow: 0 0 20px rgba(77, 159, 255, 0.3);
+    }
+
+    .node-category-4 .node-icon {
+      border-color: var(--accent-color);
+      background: linear-gradient(135deg, 
+        rgba(0, 217, 255, 0.2),
+        rgba(0, 217, 255, 0.05));
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .node-category-5 .node-icon {
+      border-color: #4dff9f;
+      background: linear-gradient(135deg, 
+        rgba(77, 255, 159, 0.2),
+        rgba(77, 255, 159, 0.05));
+      box-shadow: 0 0 20px rgba(77, 255, 159, 0.3);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       CONTROL BAR
+       ═══════════════════════════════════════════════════════════ */
+    .control-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+      background: var(--bg-secondary);
+      backdrop-filter: blur(20px);
+      padding: 10px 18px;
+      border-radius: 60px;
+      border: 2px solid var(--border-color);
+      box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.3),
+        0 0 60px var(--accent-glow);
+      transition: all 0.5s ease;
+    }
+
+    .ctrl-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid var(--border-color);
+      background: var(--node-bg);
+      color: var(--accent-color);
+      font-size: 22px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .ctrl-btn:hover {
+      transform: translateY(-4px) scale(1.15);
+      background: var(--accent-color);
+      color: var(--bg-primary);
+      box-shadow: 0 8px 30px var(--accent-glow);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       THEME TOGGLE
+       ═══════════════════════════════════════════════════════════ */
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+    }
+
+    .toggle-switch {
+      width: 65px;
+      height: 32px;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: 50px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.2),
+        0 0 20px var(--accent-glow);
+    }
+
+    .toggle-switch:hover {
+      box-shadow: 
+        0 6px 25px rgba(0, 0, 0, 0.3),
+        0 0 30px var(--accent-glow);
+      transform: scale(1.05);
+    }
+
+    .toggle-slider {
+      width: 26px;
+      height: 26px;
+      background: var(--accent-color);
+      border-radius: 50%;
+      position: absolute;
+      top: 1px;
+      left: 2px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    body.light-mode .toggle-slider {
+      left: 35px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       STATS CORNER - "Notes" (PLURAL)
+       ═══════════════════════════════════════════════════════════ */
+    .stats-corner {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: var(--bg-secondary);
+      backdrop-filter: blur(20px);
+      padding: 15px 20px;
+      border-radius: 18px;
+      border: 2px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 13px;
+      z-index: 100;
+      box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.2),
+        0 0 20px var(--accent-glow);
+      transition: all 0.5s ease;
+    }
+
+    .count-num {
+      font-size: 32px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-color), var(--ring-color-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       MODAL SYSTEM
+       ═══════════════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(15px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-secondary);
+      backdrop-filter: blur(30px);
+      border: 2px solid var(--border-color);
+      border-radius: 28px;
+      padding: 40px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 
+        0 25px 80px rgba(0, 0, 0, 0.6),
+        0 0 80px var(--accent-glow);
+      transform: scale(0.9);
+      transition: all 0.3s ease;
+      position: relative;
+      scroll-behavior: smooth;
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       MODAL CLOSE BUTTON (X)
+       ═══════════════════════════════════════════════════════════ */
+    .modal-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--node-bg);
+      border: 2px solid var(--border-color);
+      color: var(--accent-color);
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .modal-close-btn:hover {
+      background: var(--accent-color);
+      color: var(--bg-primary);
+      transform: rotate(90deg) scale(1.1);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .modal-header {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 28px;
+      background: linear-gradient(135deg, var(--accent-color), var(--ring-color-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      padding-right: 40px;
+    }
+
+    .input-group {
+      margin-bottom: 22px;
+    }
+
+    .input-label {
+      display: block;
+      color: var(--accent-color);
+      font-size: 12px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+    }
+
+    .input-field {
+      width: 100%;
+      background: var(--node-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      padding: 13px 16px;
+      color: var(--text-primary);
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .input-field::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.5;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 25px var(--accent-glow);
+      background: var(--bg-secondary);
+    }
+
+    textarea.input-field {
+      min-height: 130px;
+      resize: vertical;
+      font-family: 'SF Mono', Monaco, monospace;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .icon-selector {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .icon-option {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 14px;
+      background: var(--node-bg);
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .icon-option:hover {
+      background: var(--bg-secondary);
+      border-color: var(--accent-color);
+      transform: scale(1.1);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .icon-option.selected {
+      background: var(--accent-color);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 30px var(--accent-glow);
+      transform: scale(1.15);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .btn-primary {
+      background: var(--accent-color);
+      color: var(--bg-primary);
+      box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 35px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      background: var(--node-bg);
+      color: var(--accent-color);
+      border: 2px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-secondary);
+      border-color: var(--accent-color);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ff6b6b;
+      border: 2px solid rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.3);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+    }
+
+    .view-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 22px;
+      padding-right: 40px;
+    }
+
+    .view-icon {
+      font-size: 46px;
+      filter: drop-shadow(0 0 20px var(--accent-glow));
+    }
+
+    .view-subject {
+      background: linear-gradient(135deg, var(--accent-color), var(--ring-color-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      flex: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       ADVANCED SCROLLING - VIEW TEXT CONTAINER
+       ═══════════════════════════════════════════════════════════ */
+    .view-text-container {
+      max-height: 50vh;
+      overflow-y: auto;
+      padding-right: 10px;
+      margin-bottom: 22px;
+      scroll-behavior: smooth;
+    }
+
+    .view-text {
+      color: var(--text-secondary);
+      font-size: 16px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       ENHANCED SCROLLBAR STYLING
+       ═══════════════════════════════════════════════════════════ */
+    .modal-box::-webkit-scrollbar,
+    .notes-list::-webkit-scrollbar,
+    .view-text-container::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .modal-box::-webkit-scrollbar-track,
+    .notes-list::-webkit-scrollbar-track,
+    .view-text-container::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+      border-radius: 10px;
+      margin: 5px 0;
+    }
+
+    .modal-box::-webkit-scrollbar-thumb,
+    .notes-list::-webkit-scrollbar-thumb,
+    .view-text-container::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .modal-box::-webkit-scrollbar-thumb:hover,
+    .notes-list::-webkit-scrollbar-thumb:hover,
+    .view-text-container::-webkit-scrollbar-thumb:hover {
+      background: var(--scrollbar-thumb-hover);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* Firefox scrollbar */
+    .modal-box,
+    .notes-list,
+    .view-text-container {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    }
+
+    .notes-list {
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+
+    .note-item {
+      background: var(--node-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .note-item:hover {
+      background: var(--bg-secondary);
+      border-color: var(--accent-color);
+      transform: translateX(8px);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .note-item-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .note-item-icon {
+      font-size: 26px;
+      filter: drop-shadow(0 0 10px var(--accent-glow));
+    }
+
+    .note-item-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-color);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .note-item-preview {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      white-space: pre-wrap;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       RESPONSIVE BREAKPOINTS
+       ═══════════════════════════════════════════════════════════ */
+    
+    @media (max-width: 768px) {
+      .solar-rings {
+        width: min(300px, 45vw);
+        height: min(300px, 45vw);
+      }
+
+      .note-node {
+        width: 100px;
+      }
+
+      .node-container {
+        padding: 12px;
+      }
+
+      .node-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+      }
+
+      .node-label {
+        font-size: 10px;
+      }
+
+      .ctrl-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+      }
+
+      .control-bar {
+        gap: 8px;
+        padding: 8px 15px;
+      }
+
+      .app-logo {
+        padding: 10px 18px;
+        gap: 10px;
+      }
+
+      .logo-icon {
+        font-size: 24px;
+      }
+
+      .logo-text {
+        font-size: 16px;
+      }
+
+      .logo-tagline {
+        font-size: 9px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .solar-rings {
+        width: min(240px, 40vw);
+        height: min(240px, 40vw);
+      }
+
+      .note-node {
+        width: 85px;
+      }
+
+      .node-container {
+        padding: 10px;
+      }
+
+      .node-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 20px;
+      }
+
+      .node-label {
+        font-size: 9px;
+      }
+
+      .stats-corner,
+      .theme-toggle {
+        top: 12px;
+      }
+
+      .stats-corner {
+        left: 12px;
+        padding: 12px 16px;
+      }
+
+      .theme-toggle {
+        right: 12px;
+      }
+
+      .count-num {
+        font-size: 26px;
+      }
+
+      .app-logo {
+        top: 12px;
+        padding: 8px 14px;
+        gap: 8px;
+      }
+
+      .logo-icon {
+        font-size: 20px;
+      }
+
+      .logo-text {
+        font-size: 14px;
+      }
+
+      .logo-divider {
+        display: none;
+      }
+
+      .logo-tagline {
+        display: none;
+      }
+
+      .icon-selector {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+
+      .icon-option {
+        font-size: 22px;
+      }
+
+      .modal-box {
+        padding: 30px 25px;
+      }
+
+      .modal-close-btn {
+        top: 15px;
+        right: 15px;
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <div class="starfield"></div>
+
+  <!-- APP LOGO - "Notes Mine" -->
+  <div class="app-logo">
+    <div class="logo-icon">💎</div>
+    <div class="logo-text">Notes Mine</div>
+    <div class="logo-divider"></div>
+    <div class="logo-tagline">Mining Ideas</div>
+  </div>
+
+  <div class="theme-toggle">
+    <div class="toggle-switch" id="themeToggle">
+      <div class="toggle-slider" id="toggleSlider">🌙</div>
+    </div>
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="solar-rings">
+      <div class="solar-ring solar-ring-1"></div>
+      <div class="solar-ring solar-ring-2"></div>
+      <div class="solar-ring solar-ring-3"></div>
+      <div class="solar-core"></div>
+    </div>
+
+    <div class="pulse-wave"></div>
+
+    <svg id="connectionSvg"></svg>
+  </div>
+
+  <!-- STATS CORNER - "Notes" -->
+  <div class="stats-corner">
+    <div class="count-num" id="noteCount">0</div>
+    <div>Notes</div>
+  </div>
+
+  <div class="control-bar">
+    <button class="ctrl-btn" id="addBtn" title="Add note">➕</button>
+    <button class="ctrl-btn" id="viewAllBtn" title="View all">📋</button>
+    <button class="ctrl-btn" id="exportBtn" title="Export">💾</button>
+    <button class="ctrl-btn" id="clearBtn" title="Clear">🗑</button>
+  </div>
+
+  <!-- CREATE/EDIT MODAL - "Create Note" -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <button class="modal-close-btn" id="closeEditX">✕</button>
+      
+      <div class="modal-header" id="editModalTitle">Create Note</div>
+      
+      <div class="input-group">
+        <label class="input-label">Icon</label>
+        <div class="icon-selector" id="iconSelector">
+          <div class="icon-option" data-icon="💎">💎</div>
+          <div class="icon-option" data-icon="🧠">🧠</div>
+          <div class="icon-option" data-icon="⚡">⚡</div>
+          <div class="icon-option" data-icon="🎯">🎯</div>
+          <div class="icon-option" data-icon="🚀">🚀</div>
+          <div class="icon-option" data-icon="💡">💡</div>
+          <div class="icon-option" data-icon="🌟">🌟</div>
+          <div class="icon-option" data-icon="🔮">🔮</div>
+          <div class="icon-option" data-icon="⭐">⭐</div>
+          <div class="icon-option" data-icon="💫">💫</div>
+          <div class="icon-option" data-icon="🔥">🔥</div>
+          <div class="icon-option" data-icon="💻">💻</div>
+          <div class="icon-option" data-icon="📚">📚</div>
+          <div class="icon-option" data-icon="🎨">🎨</div>
+          <div class="icon-option" data-icon="🎵">🎵</div>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Label</label>
+        <input type="text" class="input-field" id="labelInput" placeholder="Note name...">
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Content</label>
+        <textarea class="input-field" id="contentInput" placeholder="Your thoughts..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelEdit">Cancel</button>
+        <button class="btn btn-primary" id="saveNode">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW MODAL - WITH ADVANCED SCROLLING -->
+  <div class="modal-overlay" id="viewModal">
+    <div class="modal-box">
+      <button class="modal-close-btn" id="closeViewX">✕</button>
+      
+      <div class="view-header">
+        <div class="view-icon" id="viewIcon"></div>
+        <div class="view-subject" id="viewLabel"></div>
+      </div>
+      
+      <div class="view-text-container">
+        <div class="view-text" id="viewContent"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="editNode">Edit</button>
+        <button class="btn btn-danger" id="deleteNode">Delete</button>
+        <button class="btn btn-primary" id="closeView">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW ALL MODAL - "View Notes" -->
+  <div class="modal-overlay" id="viewAllModal">
+    <div class="modal-box">
+      <div class="modal-header">View Notes</div>
+      
+      <div class="notes-list" id="notesList"></div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="closeViewAll">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /*
+    ═══════════════════════════════════════════════════════════════
+    NOTES MINE - JAVASCRIPT
+    ═══════════════════════════════════════════════════════════════
+    */
+    
+    let nodes = [];
+    let currentEditIndex = null;
+    let selectedIcon = '💎';
+    let isDarkMode = true;
+
+    const categoryClasses = [
+      'node-category-1',
+      'node-category-2',
+      'node-category-3',
+      'node-category-4',
+      'node-category-5'
+    ];
+
+    window.onload = () => {
+      loadNodes();
+      loadTheme();
+      updateUI();
+      setupIconSelector();
+      setupThemeToggle();
+      setupPasteHandlers();
+    };
+
+    function loadTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      isDarkMode = savedTheme === 'dark';
+      document.body.className = isDarkMode ? 'dark-mode' : 'light-mode';
+      updateThemeIcon();
+    }
+
+    function setupThemeToggle() {
+      document.getElementById('themeToggle').onclick = () => {
+        isDarkMode = !isDarkMode;
+        document.body.className = isDarkMode ? 'dark-mode' : 'light-mode';
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        updateThemeIcon();
+      };
+    }
+
+    function updateThemeIcon() {
+      document.getElementById('toggleSlider').textContent = isDarkMode ? '🌙' : '☀️';
+    }
+
+    function setupPasteHandlers() {
+      const labelInput = document.getElementById('labelInput');
+      const contentInput = document.getElementById('contentInput');
+
+      labelInput.addEventListener('paste', (e) => {
+        e.preventDefault();
+        
+        const clipboardData = e.clipboardData || window.clipboardData;
+        let pastedText = clipboardData.getData('text/plain');
+        
+        pastedText = pastedText.replace(/\r?\n/g, ' ');
+        
+        const start = labelInput.selectionStart;
+        const end = labelInput.selectionEnd;
+        const currentValue = labelInput.value;
+        
+        labelInput.value = currentValue.substring(0, start) + pastedText + currentValue.substring(end);
+        
+        const newPosition = start + pastedText.length;
+        labelInput.setSelectionRange(newPosition, newPosition);
+      });
+
+      contentInput.addEventListener('paste', (e) => {
+        e.preventDefault();
+        
+        const clipboardData = e.clipboardData || window.clipboardData;
+        let pastedText = '';
+        
+        const htmlData = clipboardData.getData('text/html');
+        
+        if (htmlData) {
+          pastedText = htmlToFormattedText(htmlData);
+        } else {
+          pastedText = clipboardData.getData('text/plain');
+        }
+        
+        const start = contentInput.selectionStart;
+        const end = contentInput.selectionEnd;
+        const currentValue = contentInput.value;
+        
+        contentInput.value = currentValue.substring(0, start) + pastedText + currentValue.substring(end);
+        
+        const newPosition = start + pastedText.length;
+        contentInput.setSelectionRange(newPosition, newPosition);
+        
+        contentInput.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    }
+
+    function htmlToFormattedText(html) {
+      const temp = document.createElement('div');
+      temp.innerHTML = html;
+      
+      temp.querySelectorAll('br').forEach(br => {
+        br.replaceWith('\n');
+      });
+      
+      const blockElements = temp.querySelectorAll('p, div, h1, h2, h3, h4, h5, h6, li');
+      blockElements.forEach(block => {
+        block.insertAdjacentText('afterend', '\n');
+      });
+      
+      temp.querySelectorAll('li').forEach(li => {
+        li.insertAdjacentText('beforebegin', '• ');
+      });
+      
+      let text = temp.textContent || temp.innerText || '';
+      
+      text = text.replace(/\n{3,}/g, '\n\n');
+      
+      text = text.trim();
+      
+      return text;
+    }
+
+    function setupIconSelector() {
+      const icons = document.querySelectorAll('.icon-option');
+      icons.forEach(icon => {
+        icon.onclick = () => {
+          icons.forEach(i => i.classList.remove('selected'));
+          icon.classList.add('selected');
+          selectedIcon = icon.dataset.icon;
+        };
+      });
+      icons[0].classList.add('selected');
+    }
+
+    function loadNodes() {
+      nodes = JSON.parse(localStorage.getItem('neuralNodes') || '[]');
+      renderNodes();
+    }
+
+    function saveNodes() {
+      localStorage.setItem('neuralNodes', JSON.stringify(nodes));
+    }
+
+    function renderNodes() {
+      document.querySelectorAll('.note-node').forEach(el => el.remove());
+      
+      const svg = document.getElementById('connectionSvg');
+      svg.innerHTML = '';
+
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+
+      const maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.35;
+      
+      nodes.forEach((node, index) => {
+        const angle = (index / Math.max(nodes.length, 1)) * Math.PI * 2 - Math.PI / 2;
+        
+        const x = centerX + Math.cos(angle) * maxRadius;
+        const y = centerY + Math.sin(angle) * maxRadius;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', centerX);
+        line.setAttribute('y1', centerY);
+        line.setAttribute('x2', x);
+        line.setAttribute('y2', y);
+        line.style.animationDelay = `${index * 0.2}s`;
+        svg.appendChild(line);
+
+        createNodeElement(node, index, x, y);
+      });
+
+      updateUI();
+    }
+
+    function createNodeElement(node, index, x, y) {
+      const nodeEl = document.createElement('div');
+      nodeEl.className = `note-node ${categoryClasses[index % categoryClasses.length]}`;
+      
+      nodeEl.style.left = (x - 60) + 'px';
+      nodeEl.style.top = (y - 60) + 'px';
+      nodeEl.style.animationDelay = (index * 0.4) + 's';
+
+      const container = document.createElement('div');
+      container.className = 'node-container';
+
+      const icon = document.createElement('div');
+      icon.className = 'node-icon';
+      icon.textContent = node.icon || '💎';
+
+      const label = document.createElement('div');
+      label.className = 'node-label';
+      label.textContent = node.label;
+
+      container.appendChild(icon);
+      container.appendChild(label);
+      nodeEl.appendChild(container);
+      
+      nodeEl.onclick = () => showNode(index);
+
+      document.getElementById('mainContainer').appendChild(nodeEl);
+    }
+
+    function updateUI() {
+      document.getElementById('noteCount').textContent = nodes.length;
+    }
+
+    document.getElementById('addBtn').onclick = () => {
+      currentEditIndex = null;
+      selectedIcon = '💎';
+      document.getElementById('editModalTitle').textContent = 'Create Note';
+      document.getElementById('labelInput').value = '';
+      document.getElementById('contentInput').value = '';
+      
+      const icons = document.querySelectorAll('.icon-option');
+      icons.forEach(i => i.classList.remove('selected'));
+      icons[0].classList.add('selected');
+      
+      document.getElementById('editModal').classList.add('active');
+      setTimeout(() => document.getElementById('labelInput').focus(), 100);
+    };
+
+    document.getElementById('saveNode').onclick = () => {
+      const label = document.getElementById('labelInput').value.trim();
+      const content = document.getElementById('contentInput').value;
+
+      if (!label || !content.trim()) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      const node = { icon: selectedIcon, label, content };
+
+      if (currentEditIndex !== null) {
+        nodes[currentEditIndex] = node;
+      } else {
+        nodes.push(node);
+      }
+
+      saveNodes();
+      renderNodes();
+      document.getElementById('editModal').classList.remove('active');
+    };
+
+    document.getElementById('cancelEdit').onclick = () => {
+      document.getElementById('editModal').classList.remove('active');
+    };
+
+    document.getElementById('closeEditX').onclick = () => {
+      document.getElementById('editModal').classList.remove('active');
+    };
+
+    function showNode(index) {
+      const node = nodes[index];
+      document.getElementById('viewIcon').textContent = node.icon || '💎';
+      document.getElementById('viewLabel').textContent = node.label;
+      document.getElementById('viewContent').textContent = node.content;
+      
+      const textContainer = document.querySelector('.view-text-container');
+      if (textContainer) {
+        textContainer.scrollTop = 0;
+      }
+      
+      document.getElementById('viewModal').classList.add('active');
+
+      document.getElementById('editNode').onclick = () => {
+        currentEditIndex = index;
+        selectedIcon = node.icon || '💎';
+        document.getElementById('editModalTitle').textContent = 'Edit Note';
+        document.getElementById('labelInput').value = node.label;
+        document.getElementById('contentInput').value = node.content;
+        
+        const icons = document.querySelectorAll('.icon-option');
+        icons.forEach(i => {
+          i.classList.remove('selected');
+          if (i.dataset.icon === selectedIcon) {
+            i.classList.add('selected');
+          }
+        });
+        
+        document.getElementById('viewModal').classList.remove('active');
+        document.getElementById('editModal').classList.add('active');
+      };
+
+      document.getElementById('deleteNode').onclick = () => {
+        if (confirm('Delete this note?')) {
+          nodes.splice(index, 1);
+          saveNodes();
+          renderNodes();
+          document.getElementById('viewModal').classList.remove('active');
+        }
+      };
+    }
+
+    document.getElementById('closeView').onclick = () => {
+      document.getElementById('viewModal').classList.remove('active');
+    };
+
+    document.getElementById('closeViewX').onclick = () => {
+      document.getElementById('viewModal').classList.remove('active');
+    };
+
+    document.getElementById('viewAllBtn').onclick = () => {
+      const notesList = document.getElementById('notesList');
+      notesList.innerHTML = '';
+
+      if (nodes.length === 0) {
+        notesList.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">No notes yet. Create your first one!</p>';
+      } else {
+        nodes.forEach((node, index) => {
+          const noteItem = document.createElement('div');
+          noteItem.className = 'note-item';
+          
+          const header = document.createElement('div');
+          header.className = 'note-item-header';
+          
+          const icon = document.createElement('div');
+          icon.className = 'note-item-icon';
+          icon.textContent = node.icon || '💎';
+          
+          const label = document.createElement('div');
+          label.className = 'note-item-label';
+          label.textContent = node.label;
+          
+          const preview = document.createElement('div');
+          preview.className = 'note-item-preview';
+          preview.textContent = node.content;
+          
+          header.appendChild(icon);
+          header.appendChild(label);
+          noteItem.appendChild(header);
+          noteItem.appendChild(preview);
+          
+          noteItem.onclick = () => {
+            document.getElementById('viewAllModal').classList.remove('active');
+            showNode(index);
+          };
+          
+          notesList.appendChild(noteItem);
+        });
+      }
+
+      document.getElementById('viewAllModal').classList.add('active');
+    };
+
+    document.getElementById('closeViewAll').onclick = () => {
+      document.getElementById('viewAllModal').classList.remove('active');
+    };
+
+    document.getElementById('exportBtn').onclick = () => {
+      if (nodes.length === 0) {
+        alert('No notes to export');
+        return;
+      }
+
+      const data = nodes.map(n => 
+        `${n.icon} ${n.label}\n${n.content}\n${'─'.repeat(60)}`
+      ).join('\n\n');
+
+      const blob = new Blob([data], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `notes_mine_export_${Date.now()}.txt`;
+      link.click();
+    };
+
+    document.getElementById('clearBtn').onclick = () => {
+      if (nodes.length === 0) return;
+      
+      if (confirm(`Delete all ${nodes.length} notes?`)) {
+        nodes = [];
+        saveNodes();
+        renderNodes();
+      }
+    };
+
+    document.querySelectorAll('.modal-overlay').forEach(modal => {
+      modal.onclick = (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      };
+    });
+
+    document.onkeydown = (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay').forEach(m => 
+          m.classList.remove('active')
+        );
+      }
+      if (e.ctrlKey && e.key === 'n') {
+        e.preventDefault();
+        document.getElementById('addBtn').click();
+      }
+    };
+
+    window.onresize = () => {
+      renderNodes();
+    };
+  </script>
+
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((registration) => {
+            console.log('ServiceWorker registration successful:', registration.scope);
+          })
+          .catch((error) => {
+            console.log('ServiceWorker registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
+```
+
+## Updated manifest.json
+
+```json
+{
+  "name": "Notes Mine - Neural Network Notes",
+  "short_name": "Notes Mine",
+  "description": "A beautiful neural network-inspired note-taking app with solar system visualization. Mine your thoughts and ideas like precious gems.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00d9ff",
+  "orientation": "any",
+  "scope": "/",
+  "categories": ["productivity", "utilities", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Create Note",
+      "short_name": "New",
+      "description": "Create a new note",
+      "url": "/index.html?action=new",
+      "icons": [
+        {
+          "src": "icons/new-note-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "View Notes",
+      "short_name": "All",
+      "description": "View all your notes",
+      "url": "/index.html?action=viewall",
+      "icons": [
+        {
+          "src": "icons/view-all-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "screenshots/mobile-1.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
